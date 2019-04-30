@@ -146,6 +146,7 @@ module Afip
     end
 
     def consultar_cosechas
+      pp "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
       response = client.call(:obtener_cosechas, message: body)
       return response["arrayCosechas"]
     end
