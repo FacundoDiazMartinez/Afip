@@ -12,9 +12,9 @@ module Afip
         env_namespace: :soapenv,
         namespace_identifier: :ctg,
         log: true,
-        logger: Rails.logger, 
-        log_level: :debug, 
-        pretty_print_xml: true, 
+        logger: Rails.logger,
+        log_level: :debug,
+        pretty_print_xml: true,
         encoding: 'UTF-8',
         ssl_version: :TLSv1,
         wsdl:  Afip.service_url
@@ -53,7 +53,7 @@ module Afip
       pp response = client.call(:solicitar_ctg_inicial,message: body)
 
       setup_response(response.to_hash)
-      
+
       self.authorized?
     end
 
@@ -84,15 +84,15 @@ module Afip
       return @body
     end
 
-    def authorized?       
+    def authorized?
         !response.nil?
     end
 
     def anular_ctg
       request = {
                   "datosAnularCTG" =>{
-                    "cartaPorte"  => "@ctg_num",
-                    "ctg"         => "#{self.code}"
+                    "cartaPorte"  => @cp_num,
+                    "ctg"         => @ctg_num
                   }
                 }
       body["request"].merge(request)
@@ -103,8 +103,8 @@ module Afip
     def cambiar_destino_detinatario_ctg_rechazado
       request = {
                   "datosCambiarDestinoDestinatarioCTGRechazado" =>{
-                    "cartaPorte"                  => "@ctg_num",
-                    "ctg"                         => "#{code}",
+                    "cartaPorte"                  => @cp_num,
+                    "ctg"                         => @ctg_num,
                     "codigoLocalidadDestino"      => @destino,
                     "codigoLocalidadDestinatario" => @destinatario,
                     "kmARecorrer"                 => @km
@@ -118,8 +118,8 @@ module Afip
     def confirmar_arribo
       request = {
                   "datosConfirmarArribo" =>{
-                    "cartaPorte"          => "@ctg_num",
-                    "ctg"                 => "#{self.code}",
+                    "cartaPorte"          => @cp_num,
+                    "ctg"                 => @ctg_num,
                     "cuitTransportista"   => @cuit_transportista,
                     "cuitChofer"          => @cuit_chofer,
                     "cantKilosCartaPorte" => @cant_kilos_carta_porte
@@ -133,8 +133,8 @@ module Afip
     def confirmar_definitivo
       request = {
                   "datosConfirmarDefinitivo" =>{
-                    "cartaPorte"          => "@ctg_num",
-                    "ctg"                 => "#{self.code}",
+                    "cartaPorte"          => @cp_num,
+                    "ctg"                 => @ctg_num,
                     "establecimiento"     => @establecimiento,
                     "codigoCosecha"       => @cosecha,
                     "pesoNeto"            => @peso
@@ -152,7 +152,7 @@ module Afip
 
     def consultar_constancia_ctg_pdf
       request = {
-                  "ctg" => "#{code}"
+                  "ctg" => @ctg_num
                 }
 
       body["request"].merge(request)
@@ -163,8 +163,8 @@ module Afip
     def consultar_ctg
       request = {
                   "consultarCTGDatos" =>{
-                    "cartaPorte"          => "@ctg_num",
-                    "ctg"                 => "#{self.code}",
+                    "cartaPorte"          => @cp_num,
+                    "ctg"                 => @ctg_num,
                     "patente"             => @patente,
                     "cuitSolicitante"     => @cuit_solicitante,
                     "cuitDestino"         => @destino,
@@ -185,7 +185,7 @@ module Afip
 
     def consultar_detalle_ctg
       request = {
-                  "ctg" => "#{code}"
+                  "ctg" => @ctg_num
                 }
 
       body["request"].merge(request)
