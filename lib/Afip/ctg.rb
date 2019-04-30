@@ -146,7 +146,6 @@ module Afip
     end
 
     def consultar_cosechas
-      pp "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
       response = client.call(:obtener_cosechas, message: body)
       return response["arrayCosechas"]
     end
@@ -158,7 +157,7 @@ module Afip
 
       body["request"].merge(request)
 
-      response = client.call(:consultar_constancia_ctgpdf, message: body)
+      pp response = client.call(:consultar_constancia_ctgpdf, message: body)
     end
 
     def consultar_ctg
