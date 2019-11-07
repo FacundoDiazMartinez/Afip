@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    Afip (1.1.2)
+    Afip (1.1.3)
       httpi
       savon
 

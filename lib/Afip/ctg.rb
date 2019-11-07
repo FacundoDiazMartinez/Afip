@@ -157,7 +157,7 @@ module Afip
 
       body["request"].merge(request)
 
-      response = client.call(:consultar_constancia_ctg_pdf, message: body)
+      pp response = client.call(:consultar_constancia_ctgpdf, message: body)
     end
 
     def consultar_ctg
