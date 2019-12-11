@@ -220,6 +220,7 @@ module Afip
                 :doc_num       => request_detail.delete(:doc_nro),
                 :observaciones => response_detail.delete(:observaciones),
 		:ivas 	       => response_detail.delete(:iva),
+		:tributos      => response_detail.delete(:tributos),
                 :errores       => response_detail.delete(:err)
 		    }.merge!(request_header).merge!(request_detail)
 
