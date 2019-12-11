@@ -1,3 +1,3 @@
 module Afip
-  VERSION = "1.1.4"
+  VERSION = "1.1.7"
 end
