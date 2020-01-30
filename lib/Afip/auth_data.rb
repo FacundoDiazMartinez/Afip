@@ -64,7 +64,7 @@ module Afip
       # @return [String]
       #
       def todays_data_file_name
-        "#{Rails.root}/afip/#{environment.to_s}_Afip_#{ Afip.cuit }_#{ Time.new.strftime('%Y_%m_%d') }.yml"
+        "/tmp/#{environment.to_s}_Afip_#{ Afip.cuit }_#{ Time.new.strftime('%Y_%m_%d') }.yml"
       end
     end
   end

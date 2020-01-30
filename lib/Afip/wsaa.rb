@@ -87,7 +87,7 @@ XML
       token: #{certs[0]}
       sign: #{certs[1]}
       YML
-    `echo '#{ yml }' > #{Rails.root}/afip/#{Afip::AuthData.environment.to_s}_Afip_#{ Afip.cuit }_#{ Time.new.strftime('%Y_%m_%d') }.yml`
+    `echo '#{ yml }' > /tmp/#{Afip::AuthData.environment.to_s}_Afip_#{ Afip.cuit }_#{ Time.new.strftime('%Y_%m_%d') }.yml`
     end
 
   end
