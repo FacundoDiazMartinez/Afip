@@ -49,11 +49,9 @@ module Afip
 	  	end
 
 	  	def set_data
-	  		pp data.body
 	  		if not data.body[:get_persona_response][:persona_return][:persona][:actividad].nil?
 		  		{
-		  			:last_name 		=> data.body[:get_persona_response][:persona_return][:persona][:apellido],
-		  			:first_name 	=> data.body[:get_persona_response][:persona_return][:persona][:nombre],
+		  			:name 			=> set_name(data),
 		  			:cuit 			=> data.body[:get_persona_response][:persona_return][:persona][:id_persona],
 		  			:cp 			=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:cod_postal],
 		  			:address 		=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:direccion],
@@ -64,8 +62,7 @@ module Afip
 		  		}
 		  	else
 		  		{
-		  			:last_name 		=> Padron.divide_name(data.body[:get_persona_response][:persona_return][:persona][:apellido])[0],
-		  			:first_name 	=> Padron.divide_name(data.body[:get_persona_response][:persona_return][:persona][:apellido])[1],
+		  			:name 			=> data.body[:get_persona_response][:persona_return][:persona][:apellido])
 		  			:cuit 			=> data.body[:get_persona_response][:persona_return][:persona][:id_persona],
 		  			:cp 			=> data.body[:get_persona_response][:persona_return][:persona].try(:[], :domicilio).try(:[], :cod_postal),
 		  			:address 		=> data.body[:get_persona_response][:persona_return][:persona].try(:[], :domicilio).try(:[], :direccion),
@@ -75,6 +72,10 @@ module Afip
 		  			:birthday		=> data.body[:get_persona_response][:persona_return][:persona][:fecha_nacimiento].to_date
 		  		}
 		  	end
+	  	end
+
+	  	def set_name(data)
+	  		return data.body[:get_persona_response][:persona_return][:persona][:nombre] + data.body[:get_persona_response][:persona_return][:persona][:apellido]
 	  	end
 
 	  	def self.divide_name(full_name)
