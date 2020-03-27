@@ -73,7 +73,7 @@ module Afip
 		def authorize
 	      	body 	  = setup_bill
 	      	pp response  = client.call(:fecae_solicitar, message: body)
-		  		setup_response(response.to_hash)
+		  	setup_response(response.to_hash)
 	      	authorized?
 	    end
 
@@ -230,6 +230,21 @@ module Afip
 
 		def authorized?
         	!response.nil? && response.header_result == "A" && response.detail_result == "A"
+    	end
+
+    	def self.comp_consultar(cbte_tipo, cbte_nro, pto_venta)
+    		client = set_client
+    		
+    		body = {
+    			"Auth" => Afip.auth_hash,
+    			"FeCompConsReq" => {
+	    			"CbteTipo" => cbte_tipo,
+	    			"CbteNro" => cbte_nro,
+	    			"PtoVta" => pto_venta
+	    		}
+    		}
+    		response = client.call(:fe_comp_consultar, message: body)
+    		return response
     	end
 	end
 end
