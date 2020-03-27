@@ -127,7 +127,7 @@ module Afip
 
 	        if (Afip.own_iva_cond == :responsable_inscripto)
 	        	detail["ImpIVA"] = iva_sum
-	        	detail["Iva"] =  array_ivas
+	        	detail["Iva"] =  array_ivas unless iva_sum == 0
 	        end
 
 	        if !tributos.empty?
