@@ -8,7 +8,16 @@ module Afip
     "08"=>"Nota de Credito B",
     "11"=>"Factura C",
     "12"=>"Nota de Debito C",
-    "13"=>"Nota de Credito C"
+    "13"=>"Nota de Credito C",
+    "201" => "Factura de Crédito electrónica MiPyMEs (FCE) A",
+    "202" => "Nota de Débito electrónica MiPyMEs (FCE) A",
+    "203" => "Nota de Crédito electrónica MiPyMEs (FCE) A",
+    "206" => "Factura de Crédito electrónica MiPyMEs (FCE) B",
+    "207" => "Nota de Débito electrónica MiPyMEs (FCE) B",
+    "208" => "Nota de Crédito electrónica MiPyMEs (FCE) B",
+    "211" => "Factura de Crédito electrónica MiPyMEs (FCE) C",
+    "212" => "Nota de Débito electrónica MiPyMEs (FCE) C",
+    "213" => "Nota de Crédito electrónica MiPyMEs (FCE) C",
   }
 
   CONCEPTOS = {"Productos"=>"01", "Servicios"=>"02", "Productos y Servicios"=>"03"}
@@ -50,16 +59,16 @@ module Afip
 
   AVAILABLE_TYPES = {
     :responsable_inscripto => {
-      :responsable_inscripto => ["01", "02", "03"],
-      :consumidor_final => ["06", "07", "08"],
-      :exento => ["06", "07", "08"],
-      :responsable_monotributo => ["06", "07", "08"],
+      :responsable_inscripto => ["01", "02", "03", "201", "202", "203"],
+      :consumidor_final => ["06", "07", "08", "206", "207", "208"],
+      :exento => ["06", "07", "08", "206", "207", "208"],
+      :responsable_monotributo => ["06", "07", "08", "206", "207", "208"],
     },
     :responsable_monotributo => {
-      :responsable_inscripto => ["11", "12", "13"],
-      :consumidor_final => ["11", "12", "13"],
-      :exento => ["11", "12", "13"],
-      :responsable_monotributo => ["11", "12", "13"]
+      :responsable_inscripto => ["11", "12", "13", "211", "212", "213"],
+      :consumidor_final => ["11", "12", "13", "211", "212", "213"],
+      :exento => ["11", "12", "13", "211", "212", "213"],
+      :responsable_monotributo => ["11", "12", "13", "211", "212", "213"]
     }
   }
   

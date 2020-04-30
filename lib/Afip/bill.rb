@@ -44,6 +44,12 @@ module Afip
 			end
 		end
 
+		def self.get_tipos_cbte
+    		client = set_client
+    		body 		= { "Auth" => Afip.auth_hash }
+    		response 	= client.call(:fe_param_get_tipos_cbte, message: body)
+    	end
+
 		def self.get_tributos
 			client 		= set_client
 			body 		= { "Auth" => Afip.auth_hash }
@@ -176,7 +182,7 @@ module Afip
 
 	    def setup_response(response)
 		    # TODO: turn this into an all-purpose Response class
-				pp response
+			pp response
 		    result          = response[:fecae_solicitar_response][:fecae_solicitar_result]
 
 		    if not result[:fe_det_resp] or not result[:fe_cab_resp] then
@@ -219,13 +225,13 @@ module Afip
                 :iva_base_imp  => request_detail.delete(:base_imp),
                 :doc_num       => request_detail.delete(:doc_nro),
                 :observaciones => response_detail.delete(:observaciones),
-		:ivas 	       => response_detail.delete(:iva),
-		:tributos      => response_detail.delete(:tributos),
+				:ivas 	       => response_detail.delete(:iva),
+				:tributos      => response_detail.delete(:tributos),
                 :errores       => response_detail.delete(:err)
 		    }.merge!(request_header).merge!(request_detail)
 
 		    keys, values  = response_hash.to_a.transpose
-		    @response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+		    pp @response = Struct.new("Response", *keys).new(*values)
 		end
 
 		def authorized?
