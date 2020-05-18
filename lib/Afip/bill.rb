@@ -3,7 +3,7 @@ module Afip
 		attr_reader   :cbte_type, :body, :response, :fecha_emision, :total, :client
 		attr_accessor :net, :doc_num, :iva_cond, :documento, :concepto, :moneda, :cbte_type,
                   	  :due_date, :fch_serv_desde, :fch_serv_hasta, :fch_emision,
-                      :ivas, :sale_point, :cant_reg, :no_gravado, :gravado, :exento, :otros_imp, :tributos
+                      :ivas, :sale_point, :cant_reg, :no_gravado, :gravado, :exento, :otros_imp, :tributos, :opcionales
 
 		def initialize(attrs={})
 			@client = Bill.set_client
@@ -27,6 +27,7 @@ module Afip
 		    @otros_imp 		= attrs[:otros_imp] 	|| 0.0
 		    @total 				= net.to_f + iva_sum.to_f + exento.to_f  + no_gravado.to_f + otros_imp.to_f
 		    @tributos 		= attrs[:tributos] 		|| []
+		    @opcionales 	= attrs[:opcionales] 	|| []
 		end
 
 		def self.get_ptos_vta
@@ -43,6 +44,12 @@ module Afip
 				[]
 			end
 		end
+
+		def self.get_tipos_cbte
+    		client = set_client
+    		body 		= { "Auth" => Afip.auth_hash }
+    		response 	= client.call(:fe_param_get_tipos_cbte, message: body)
+    	end
 
 		def self.get_tributos
 			client 		= set_client
@@ -79,27 +86,36 @@ module Afip
 
 	    def setup_bill
 	      	array_ivas = {}
-					array_ivas["AlicIva"] = ivas.map{ |i| { "Id" => i[0], "BaseImp" => i[1].round(2), "Importe" => i[2].round(2)} unless ["01", "02"].include?(i[0])}.compact
+					array_ivas["AlicIva"] = ivas.map{ |i| { "Id" => i[0], "BaseImp" => i[1].round(4), "Importe" => i[2].round(4)} unless ["01", "02"].include?(i[0])}.compact
 
 	      	array_tributos = {}
-					array_tributos["Tributo"] =  tributos.map{ |t|
-						if t[1].blank?
-							{
+			array_tributos["Tributo"] =  tributos.map{ |t|
+				if t[1].blank?
+					{
 		      			"Id" => t[0],
-		      			"BaseImp" => t[2].to_f.round(2),
-		      			"Alic" => t[3].to_f.round(2),
-		      			"Importe" => t[4].to_f.round(2)
+		      			"BaseImp" => t[2].to_f.round(4),
+		      			"Alic" => t[3].to_f.round(4),
+		      			"Importe" => t[4].to_f.round(4)
 		      		}
-						else
-							{
+				else
+					{
 		      			"Id" => t[0],
 		      			"Desc" => t[1],
-		      			"BaseImp" => t[2].to_f.round(2),
-		      			"Alic" => t[3].to_f.round(2),
-		      			"Importe" => t[4].to_f.round(2)
+		      			"BaseImp" => t[2].to_f.round(4),
+		      			"Alic" => t[3].to_f.round(4),
+		      			"Importe" => t[4].to_f.round(4)
 		      		}
-						end
+				end
 	      	}
+
+	      	array_opcionales = {}
+	      	array_opcionales["Opcional"] =  opcionales.map{ |t|
+					{
+		      			"Id" => t[:id],
+		      			"Valor" => t[:valor]
+		      		}
+	      	}
+
 
 	        fecaereq = {
 	        	"FeCAEReq" => {
@@ -115,7 +131,7 @@ module Afip
 	                        "MonId"       => Afip::MONEDAS[moneda][:codigo],
 	                        "MonCotiz"    => exchange_rate,
 	                        "ImpOpEx"     => exento,
-	                        "ImpTotal"	  => (Afip.own_iva_cond == :responsable_monotributo ? net : total).to_f.round(2),
+	                        "ImpTotal"	  => (Afip.own_iva_cond == :responsable_monotributo ? net : total).to_f.round(4),
 	                        "CbteDesde"	  => next_bill_number,
 	                        "CbteHasta"	  => next_bill_number
 	                    }
@@ -135,10 +151,18 @@ module Afip
 	        	detail["Tributos"] = array_tributos
 	        end
 
+	        if !opcionales.empty?
+	        	detail["Opcionales"] = array_opcionales
+	        end
+
 		    unless concepto == "Productos" # En "Productos" ("01"), si se mandan estos parámetros la afip rechaza.
 		        detail.merge!({"FchServDesde" => fch_serv_desde.strftime("%Y%m%d"),
 		                      "FchServHasta"  => fch_serv_hasta.strftime("%Y%m%d"),
 		                      "FchVtoPago"    => due_date.strftime("%Y%m%d")})
+		    end
+
+		    if ["201", "202", "203", "206", "207", "208", "211", "212", "213"].include?(cbte_type)
+		        detail.merge!({"FchVtoPago"    => due_date.strftime("%Y%m%d")})
 		    end
 
 		    body.merge!(fecaereq)
@@ -162,7 +186,7 @@ module Afip
 	      	self.ivas.each{ |i|
 	        	iva_sum += i[2]
 	      	}
-	      	return iva_sum.round(2)
+	      	return iva_sum.round(4)
 	    end
 
 	    def next_bill_number
@@ -219,13 +243,13 @@ module Afip
                 :iva_base_imp  => request_detail.delete(:base_imp),
                 :doc_num       => request_detail.delete(:doc_nro),
                 :observaciones => response_detail.delete(:observaciones),
-		:ivas 	       => response_detail.delete(:iva),
-		:tributos      => response_detail.delete(:tributos),
+				:ivas 	       => response_detail.delete(:iva),
+				:tributos      => response_detail.delete(:tributos),
                 :errores       => response_detail.delete(:err)
 		    }.merge!(request_header).merge!(request_detail)
 
 		    keys, values  = response_hash.to_a.transpose
-		    @response = (defined?(Struct::Response) ? Struct::Response : Struct.new("Response", *keys)).new(*values)
+		    pp @response = Struct.new("Response", *keys).new(*values)
 		end
 
 		def authorized?
@@ -234,7 +258,7 @@ module Afip
 
     	def self.comp_consultar(cbte_tipo, cbte_nro, pto_venta)
     		client = set_client
-    		
+
     		body = {
     			"Auth" => Afip.auth_hash,
     			"FeCompConsReq" => {
