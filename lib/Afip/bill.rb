@@ -86,24 +86,24 @@ module Afip
 
 	    def setup_bill
 	      	array_ivas = {}
-					array_ivas["AlicIva"] = ivas.map{ |i| { "Id" => i[0], "BaseImp" => i[1].round(4), "Importe" => i[2].round(4)} unless ["01", "02"].include?(i[0])}.compact
+					array_ivas["AlicIva"] = ivas.map{ |i| { "Id" => i[0], "BaseImp" => i[1].round(2), "Importe" => i[2].round(2)} unless ["01", "02"].include?(i[0])}.compact
 
 	      	array_tributos = {}
 			array_tributos["Tributo"] =  tributos.map{ |t|
 				if t[1].blank?
 					{
 		      			"Id" => t[0],
-		      			"BaseImp" => t[2].to_f.round(4),
-		      			"Alic" => t[3].to_f.round(4),
-		      			"Importe" => t[4].to_f.round(4)
+		      			"BaseImp" => t[2].to_f.round(2),
+		      			"Alic" => t[3].to_f.round(2),
+		      			"Importe" => t[4].to_f.round(2)
 		      		}
 				else
 					{
 		      			"Id" => t[0],
 		      			"Desc" => t[1],
-		      			"BaseImp" => t[2].to_f.round(4),
-		      			"Alic" => t[3].to_f.round(4),
-		      			"Importe" => t[4].to_f.round(4)
+		      			"BaseImp" => t[2].to_f.round(2),
+		      			"Alic" => t[3].to_f.round(2),
+		      			"Importe" => t[4].to_f.round(2)
 		      		}
 				end
 	      	}
@@ -131,7 +131,7 @@ module Afip
 	                        "MonId"       => Afip::MONEDAS[moneda][:codigo],
 	                        "MonCotiz"    => exchange_rate,
 	                        "ImpOpEx"     => exento,
-	                        "ImpTotal"	  => (Afip.own_iva_cond == :responsable_monotributo ? net : total).to_f.round(4),
+	                        "ImpTotal"	  => (Afip.own_iva_cond == :responsable_monotributo ? net : total).to_f.round(2),
 	                        "CbteDesde"	  => next_bill_number,
 	                        "CbteHasta"	  => next_bill_number
 	                    }
@@ -186,7 +186,7 @@ module Afip
 	      	self.ivas.each{ |i|
 	        	iva_sum += i[2]
 	      	}
-	      	return iva_sum.round(4)
+	      	return iva_sum.round(2)
 	    end
 
 	    def next_bill_number
