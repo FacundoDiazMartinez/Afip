@@ -121,7 +121,7 @@ module Afip
 			array_associados["CbteAsoc"] =  cbte_asoc.map{ |b|
 				{
 					"Tipo" => b[:cbte_tipo],
-					"PtoVta" => b[:sale_point]
+					"PtoVta" => b[:sale_point],
 					"Nro" => b[:cbte_num]
 				}
 			}
