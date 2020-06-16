@@ -28,7 +28,7 @@ module Afip
 		    @total 			= net.to_f + iva_sum.to_f + exento.to_f  + no_gravado.to_f + otros_imp.to_f
 		    @tributos 		= attrs[:tributos] 		|| []
 			@opcionales 	= attrs[:opcionales] 	|| []
-			@cbte_asoc 		= attrs[:cbte_asoc]
+			@cbte_asoc 		= attrs[:cbte_asoc] 	|| []
 		end
 
 		def self.get_ptos_vta
@@ -166,7 +166,7 @@ module Afip
 			end
 			
 			if !cbte_asoc.empty?
-				detaill["CbtesAsoc"] = array_associados
+				detail["CbtesAsoc"] = array_associados
 			end
 
 		    unless concepto == "Productos" # En "Productos" ("01"), si se mandan estos parámetros la afip rechaza.
