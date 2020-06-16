@@ -2,19 +2,19 @@ module Afip
 	class Bill
 		attr_reader   :cbte_type, :body, :response, :fecha_emision, :total, :client
 		attr_accessor :net, :doc_num, :iva_cond, :documento, :concepto, :moneda, :cbte_type,
-                  	  :due_date, :fch_serv_desde, :fch_serv_hasta, :fch_emision,
+                  	  :due_date, :fch_serv_desde, :fch_serv_hasta, :fch_emision, :cbte_asoc,
                       :ivas, :sale_point, :cant_reg, :no_gravado, :gravado, :exento, :otros_imp, :tributos, :opcionales
 
 		def initialize(attrs={})
 			@client = Bill.set_client
-			@sale_point			= attrs[:sale_point]
-		    @body					= { "Auth" => Afip.auth_hash }
-		    @net					= attrs[:net] 			|| 0.0
+			@sale_point		= attrs[:sale_point]
+		    @body			= { "Auth" => Afip.auth_hash }
+		    @net			= attrs[:net] 			|| 0.0
 		    @documento 		= attrs[:documento] 	|| Afip.default_documento
-		    @moneda 			= attrs[:moneda]    	|| Afip.default_moneda
+		    @moneda 		= attrs[:moneda]    	|| Afip.default_moneda
 		    @iva_cond 		= attrs[:iva_cond]
 		    @concepto 		= attrs[:concepto]  	|| Afip.default_concepto
-		    @ivas 				= attrs[:ivas] 			|| Array.new # [ 1, 100.00, 10.50 ], [ 2, 100.00, 21.00 ]
+		    @ivas 			= attrs[:ivas] 			|| Array.new # [ 1, 100.00, 10.50 ], [ 2, 100.00, 21.00 ]
 		    @fecha_emision 	= attrs[:fch_emision] 	|| Time.new
 		    @fch_serv_hasta = attrs[:fch_serv_hasta]
 		    @fch_serv_desde = attrs[:fch_serv_desde]
@@ -22,12 +22,13 @@ module Afip
 		    @cbte_type 		= attrs[:cbte_type]
 		    @cant_reg 		= attrs[:cant_reg] 		|| 1
 		    @no_gravado 	= attrs[:no_gravado] 	|| 0.0
-		    @gravado 			= attrs[:gravado] 		|| 0.0
-		    @exento 			= attrs[:exento] 		|| 0.0
+		    @gravado 		= attrs[:gravado] 		|| 0.0
+		    @exento 		= attrs[:exento] 		|| 0.0
 		    @otros_imp 		= attrs[:otros_imp] 	|| 0.0
-		    @total 				= net.to_f + iva_sum.to_f + exento.to_f  + no_gravado.to_f + otros_imp.to_f
+		    @total 			= net.to_f + iva_sum.to_f + exento.to_f  + no_gravado.to_f + otros_imp.to_f
 		    @tributos 		= attrs[:tributos] 		|| []
-		    @opcionales 	= attrs[:opcionales] 	|| []
+			@opcionales 	= attrs[:opcionales] 	|| []
+			@cbte_asoc 		= attrs[:cbte_asoc]
 		end
 
 		def self.get_ptos_vta
@@ -110,11 +111,20 @@ module Afip
 
 	      	array_opcionales = {}
 	      	array_opcionales["Opcional"] =  opcionales.map{ |t|
-					{
-		      			"Id" => t[:id],
-		      			"Valor" => t[:valor]
-		      		}
-	      	}
+				{
+					"Id" => t[:id],
+					"Valor" => t[:valor]
+				}
+			}
+			  
+			array_associados = {}
+			array_associados["CbteAsoc"] =  cbte_asoc.map{ |b|
+				{
+					"Tipo" => b[:cbte_tipo],
+					"PtoVta" => b[:sale_point]
+					"Nro" => b[:cbte_num]
+				}
+			}
 
 
 	        fecaereq = {
@@ -124,10 +134,10 @@ module Afip
                       	"FECAEDetRequest" => {
 	                        "Concepto"    => Afip::CONCEPTOS[concepto],
 	                        "DocTipo"     => Afip::DOCUMENTOS[documento],
-	                        "DocNro"	  => doc_num,
+	                        "DocNro"	  	=> doc_num,
 	                        "CbteFch"     => fecha_emision.strftime('%Y%m%d'),
 	                        "ImpTotConc"  => no_gravado,
-	                        "ImpNeto"	  => net.to_f,
+	                        "ImpNeto"	  	=> net.to_f,
 	                        "MonId"       => Afip::MONEDAS[moneda][:codigo],
 	                        "MonCotiz"    => exchange_rate,
 	                        "ImpOpEx"     => exento,
@@ -153,7 +163,11 @@ module Afip
 
 	        if !opcionales.empty?
 	        	detail["Opcionales"] = array_opcionales
-	        end
+			end
+			
+			if !cbte_asoc.empty?
+				detaill["CbtesAsoc"] = array_associados
+			end
 
 		    unless concepto == "Productos" # En "Productos" ("01"), si se mandan estos parámetros la afip rechaza.
 		        detail.merge!({"FchServDesde" => fch_serv_desde.strftime("%Y%m%d"),
