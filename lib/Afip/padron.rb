@@ -49,29 +49,17 @@ module Afip
 	  	end
 
 	  	def set_data
-	  		if not data.body[:get_persona_response][:persona_return][:persona][:actividad].nil?
-		  		{
-		  			:name 			=> set_name(data),
-		  			:cuit 			=> data.body[:get_persona_response][:persona_return][:persona][:id_persona],
-		  			:cp 			=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:cod_postal],
-		  			:address 		=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:direccion],
-		  			:city_id 		=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:id_provincia],
-		  			:city 			=> PROVINCIAS[data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:id_provincia]],
-		  			:locality 		=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:localidad],
-		  			:birthday		=> data.body[:get_persona_response][:persona_return][:persona][:fecha_nacimiento].to_date
-		  		}
-		  	else
-		  		{
-		  			:name 			=> data.body[:get_persona_response][:persona_return][:persona][:apellido])
-		  			:cuit 			=> data.body[:get_persona_response][:persona_return][:persona][:id_persona],
-		  			:cp 			=> data.body[:get_persona_response][:persona_return][:persona].try(:[], :domicilio).try(:[], :cod_postal),
-		  			:address 		=> data.body[:get_persona_response][:persona_return][:persona].try(:[], :domicilio).try(:[], :direccion),
-		  			:city_id 		=> data.body[:get_persona_response][:persona_return][:persona].try(:[], :domicilio).try(:[], :id_provincia),
-		  			:city 			=> PROVINCIAS[data.body[:get_persona_response][:persona_return][:persona].try(:[], :domicilio).try(:[], :id_provincia)],
-		  			:locality 		=> data.body[:get_persona_response][:persona_return][:persona].try(:[], :domicilio).try(:[], :localidad),
-		  			:birthday		=> data.body[:get_persona_response][:persona_return][:persona][:fecha_nacimiento].to_date
-		  		}
-		  	end
+			{
+				:name 			=> set_name(data),
+				:cuit 			=> data.body[:get_persona_response][:persona_return][:persona][:id_persona],
+				:cp 			=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:cod_postal],
+				:address 		=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:direccion],
+				:city_id 		=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:id_provincia],
+				:city 			=> PROVINCIAS[data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:id_provincia]],
+				:locality 		=> data.body[:get_persona_response][:persona_return][:persona][:domicilio].last[:localidad],
+				:birthday		=> data.body[:get_persona_response][:persona_return][:persona][:fecha_nacimiento].to_date
+			}
+		  	
 	  	end
 
 	  	def set_name(data)
